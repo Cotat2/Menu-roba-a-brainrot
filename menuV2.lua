@@ -23,6 +23,7 @@ end
 local function activateJumpBoost(jumpHeight)
     local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
     if humanoid then
+        -- Esta línea es la que cambia la altura de salto
         humanoid.JumpPower = jumpHeight
         print("Jump Boost activado. Altura de salto ajustada a: " .. jumpHeight)
     else
@@ -33,7 +34,8 @@ end
 local function deactivateJumpBoost()
     local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
     if humanoid then
-        humanoid.JumpPower = 50 -- Restaurar el valor por defecto de Roblox
+        -- Esta línea es la que restaura el salto a su valor por defecto
+        humanoid.JumpPower = 50 
         print("Jump Boost desactivado. Altura de salto restaurada.")
     end
 end
@@ -173,6 +175,7 @@ local function initializeScript()
     jumpBoostButton.Text = "Activar Jump Boost"
     jumpBoostButton.Parent = playerTab
     jumpBoostButton.MouseButton1Click:Connect(function()
+        print("Botón de Jump Boost presionado.")
         savedStates.jumpBoostEnabled = not savedStates.jumpBoostEnabled
         updateButtonColors(mainFrame)
         if savedStates.jumpBoostEnabled then
