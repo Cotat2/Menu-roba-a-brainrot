@@ -9,7 +9,7 @@ local savedStates = {
     jumpHeight = 50 -- Altura de salto inicial
 }
 
-local currentTab = "Stealer" -- Pestaña inicial
+local currentTab = "Player" -- Pestaña inicial por defecto
 local debounce = false
 
 -- Función para actualizar los estados visuales de los botones
@@ -115,92 +115,6 @@ local function initializeScript()
         end
     end
 
-    -- Pestaña Player (con el Jump Boost)
-    local playerButton = Instance.new("TextButton")
-    playerButton.Size = UDim2.new(1, 0, 0.1, 0)
-    playerButton.Position = UDim2.new(0, 0, 0.2, 0)
-    playerButton.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
-    playerButton.Text = "Player"
-    playerButton.Parent = sideBar
-    playerButton.MouseButton1Click:Connect(function()
-        changeTab("Player")
-    end)
-    
-    local playerTab = Instance.new("Frame")
-    playerTab.Name = "PlayerTab"
-    playerTab.Size = UDim2.new(1, 0, 1, 0)
-    playerTab.BackgroundColor3 = Color3.fromRGB(240, 240, 240)
-    playerTab.Visible = false
-    playerTab.Parent = contentFrame
-
-    -- Botón de Jump Boost
-    local jumpBoostButton = Instance.new("TextButton")
-    jumpBoostButton.Name = "JumpBoostButton"
-    jumpBoostButton.Size = UDim2.new(0.8, 0, 0.1, 0)
-    jumpBoostButton.Position = UDim2.new(0.1, 0, 0.1, 0)
-    jumpBoostButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    jumpBoostButton.Text = "Activar Jump Boost"
-    jumpBoostButton.Parent = playerTab
-    jumpBoostButton.MouseButton1Click:Connect(function()
-        savedStates.jumpBoostEnabled = not savedStates.jumpBoostEnabled
-        updateButtonColors(mainFrame)
-        if savedStates.jumpBoostEnabled then
-            activateJumpBoost(savedStates.jumpHeight)
-        else
-            deactivateJumpBoost()
-        end
-    end)
-
-    -- Slider para el Jump Boost
-    local sliderFrame = Instance.new("Frame")
-    sliderFrame.Size = UDim2.new(0.8, 0, 0.1, 0)
-    sliderFrame.Position = UDim2.new(0.1, 0, 0.25, 0)
-    sliderFrame.BackgroundColor3 = Color3.fromRGB(180, 180, 180)
-    sliderFrame.Parent = playerTab
-
-    local sliderButton = Instance.new("Frame")
-    sliderButton.Size = UDim2.new(0.1, 0, 1, 0)
-    sliderButton.Position = UDim2.new(0, 0, 0, 0)
-    sliderButton.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
-    sliderButton.Parent = sliderFrame
-
-    local sliderLabel = Instance.new("TextLabel")
-    sliderLabel.Size = UDim2.new(1, 0, 0.5, 0)
-    sliderLabel.Position = UDim2.new(0, 0, 0.5, 0)
-    sliderLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0, 0)
-    sliderLabel.TextColor3 = Color3.fromRGB(0, 0, 0)
-    sliderLabel.Text = "Altura: 50"
-    sliderLabel.Font = Enum.Font.SourceSansBold
-    sliderLabel.TextSize = 14
-    sliderLabel.Parent = sliderFrame
-
-    local function updateSlider(x)
-        local newX = math.clamp(x, 0, 1)
-        sliderButton.Position = UDim2.new(newX, 0, 0, 0)
-        local jumpPower = math.floor(50 + newX * 250) -- Rango de 50 a 300
-        savedStates.jumpHeight = jumpPower
-        sliderLabel.Text = "Altura: " .. jumpPower
-        if savedStates.jumpBoostEnabled then
-            activateJumpBoost(jumpPower)
-        end
-    end
-    
-    local dragging = false
-    sliderButton.MouseButton1Down:Connect(function()
-        dragging = true
-    end)
-    sliderButton.MouseButton1Up:Connect(function()
-        dragging = false
-    end)
-    RunService.Heartbeat:Connect(function()
-        if dragging then
-            local mouse = LocalPlayer:GetMouse()
-            local x = (mouse.X - sliderFrame.AbsolutePosition.X) / sliderFrame.AbsoluteSize.X
-            updateSlider(x)
-        end
-    end)
-
-    -- Las otras pestañas (vacías)
     local stealerButton = Instance.new("TextButton")
     stealerButton.Size = UDim2.new(1, 0, 0.1, 0)
     stealerButton.Position = UDim2.new(0, 0, 0, 0)
@@ -234,6 +148,88 @@ local function initializeScript()
     helperTab.BackgroundColor3 = Color3.fromRGB(240, 240, 240)
     helperTab.Visible = false
     helperTab.Parent = contentFrame
+
+    local playerButton = Instance.new("TextButton")
+    playerButton.Size = UDim2.new(1, 0, 0.1, 0)
+    playerButton.Position = UDim2.new(0, 0, 0.2, 0)
+    playerButton.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+    playerButton.Text = "Player"
+    playerButton.Parent = sideBar
+    playerButton.MouseButton1Click:Connect(function()
+        changeTab("Player")
+    end)
+
+    local playerTab = Instance.new("Frame")
+    playerTab.Name = "PlayerTab"
+    playerTab.Size = UDim2.new(1, 0, 1, 0)
+    playerTab.BackgroundColor3 = Color3.fromRGB(240, 240, 240)
+    playerTab.Visible = false
+    playerTab.Parent = contentFrame
+
+    local jumpBoostButton = Instance.new("TextButton")
+    jumpBoostButton.Name = "JumpBoostButton"
+    jumpBoostButton.Size = UDim2.new(0.8, 0, 0.1, 0)
+    jumpBoostButton.Position = UDim2.new(0.1, 0, 0.1, 0)
+    jumpBoostButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    jumpBoostButton.Text = "Activar Jump Boost"
+    jumpBoostButton.Parent = playerTab
+    jumpBoostButton.MouseButton1Click:Connect(function()
+        savedStates.jumpBoostEnabled = not savedStates.jumpBoostEnabled
+        updateButtonColors(mainFrame)
+        if savedStates.jumpBoostEnabled then
+            activateJumpBoost(savedStates.jumpHeight)
+        else
+            deactivateJumpBoost()
+        end
+    end)
+
+    local sliderFrame = Instance.new("Frame")
+    sliderFrame.Size = UDim2.new(0.8, 0, 0.1, 0)
+    sliderFrame.Position = UDim2.new(0.1, 0, 0.25, 0)
+    sliderFrame.BackgroundColor3 = Color3.fromRGB(180, 180, 180)
+    sliderFrame.Parent = playerTab
+
+    local sliderButton = Instance.new("Frame")
+    sliderButton.Size = UDim2.new(0.1, 0, 1, 0)
+    sliderButton.Position = UDim2.new(0, 0, 0, 0)
+    sliderButton.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+    sliderButton.Parent = sliderFrame
+
+    local sliderLabel = Instance.new("TextLabel")
+    sliderLabel.Size = UDim2.new(1, 0, 0.5, 0)
+    sliderLabel.Position = UDim2.new(0, 0, 0.5, 0)
+    sliderLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0, 0)
+    sliderLabel.TextColor3 = Color3.fromRGB(0, 0, 0)
+    sliderLabel.Text = "Altura: " .. savedStates.jumpHeight
+    sliderLabel.Font = Enum.Font.SourceSansBold
+    sliderLabel.TextSize = 14
+    sliderLabel.Parent = sliderFrame
+
+    local dragging = false
+    sliderButton.MouseButton1Down:Connect(function()
+        dragging = true
+    end)
+    sliderButton.MouseButton1Up:Connect(function()
+        dragging = false
+    end)
+    RunService.Heartbeat:Connect(function()
+        if dragging then
+            local mouse = LocalPlayer:GetMouse()
+            local x = (mouse.X - sliderFrame.AbsolutePosition.X) / sliderFrame.AbsoluteSize.X
+            updateSlider(x)
+        end
+    end)
+    
+    local function updateSlider(x)
+        local newX = math.clamp(x, 0, 1)
+        sliderButton.Position = UDim2.new(newX, 0, 0, 0)
+        local jumpPower = math.floor(50 + newX * 250)
+        savedStates.jumpHeight = jumpPower
+        sliderLabel.Text = "Altura: " .. jumpPower
+        if savedStates.jumpBoostEnabled then
+            activateJumpBoost(jumpPower)
+        end
+    end
 
     local finderButton = Instance.new("TextButton")
     finderButton.Size = UDim2.new(1, 0, 0.1, 0)
@@ -286,7 +282,7 @@ local function initializeScript()
     discordTab.Visible = false
     discordTab.Parent = contentFrame
 
-    changeTab("Player") -- Cambiamos la pestaña inicial a Player para que veas la opción de Jump Boost
+    changeTab(currentTab)
     updateButtonColors(mainFrame)
 end
 
