@@ -12,24 +12,14 @@ local savedStates = {
 
 -- Función para aplicar las opciones guardadas
 local function applySavedStates()
-    if savedStates.teleportEnabled then
-        print("Restaurando Teleport...")
-        -- Código para restaurar el Teleport
-    end
-    if savedStates.autoFarmEnabled then
-        print("Restaurando Auto-Farm...")
-        -- Código para restaurar el Auto-Farm
-    end
-    if savedStates.antiHitEnabled then
-        print("Restaurando Anti-Hit...")
-        -- Código para restaurar el Anti-Hit
-    end
+    -- Aquí iría la lógica para activar las funciones si savedStates.teleportEnabled, etc. es true
+    -- Por ejemplo: if savedStates.teleportEnabled then activateTeleport() end
 end
 
 -- Función para inicializar el script
 local function initializeScript()
     if PlayerGui:FindFirstChild("CustomMenu") then
-        return
+        PlayerGui.CustomMenu:Destroy()
     end
 
     local screenGui = Instance.new("ScreenGui")
@@ -135,30 +125,6 @@ local function initializeScript()
         print("Anti-Hit ha sido " .. (savedStates.antiHitEnabled and "activado" or "desactivado"))
     end)
 
-    -- Lógica del Anti-Hit
-    if savedStates.antiHitEnabled then
-        local debounce = false
-        RunService.Heartbeat:Connect(function()
-            if not debounce then
-                local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-                local webSlinger = character:FindFirstChild("WebSlinger") -- Asume que el guante se llama "WebSlinger"
-                if webSlinger then
-                    debounce = true
-                    -- Activa la animación del guante
-                    webSlinger.Activated:Fire()
-                    
-                    -- Lanza un rayo de telaraña hacia tu propio personaje
-                    local mouse = LocalPlayer:GetMouse()
-                    mouse.Target = character.HumanoidRootPart
-                    webSlinger.Activated:Fire()
-                    
-                    wait(10) -- Espera 10 segundos
-                    debounce = false
-                end
-            end
-        end)
-    end
-
     if not mainFrame.Visible and iconButton.Visible then
         hideMenu()
     end
@@ -170,5 +136,6 @@ LocalPlayer.CharacterAdded:Connect(function()
     applySavedStates()
 end)
 
+-- Primera inicialización del script
 initializeScript()
 applySavedStates()
