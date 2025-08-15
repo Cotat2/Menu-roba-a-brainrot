@@ -1,41 +1,53 @@
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
--- Variables para guardar el estado de las opciones
-local savedStates = {
-    jumpBoostEnabled = false,
-    jumpHeight = 50 -- Altura de salto inicial
-}
-
-local currentTab = "Player" -- Pestaña inicial por defecto
+-- Variable para guardar el estado del Anti-Hit
+local antiHitEnabled = false
 local debounce = false
+local currentTab = "Stealer" -- Pestaña inicial por defecto
 
--- Función para actualizar los estados visuales de los botones
+-- Función para actualizar los estados visuales del botón de Anti-Hit
 local function updateButtonColors(mainFrame)
-    local jumpBoostButton = mainFrame:FindFirstChild("PlayerTab"):FindFirstChild("JumpBoostButton")
-    if jumpBoostButton then
-        jumpBoostButton.BackgroundColor3 = savedStates.jumpBoostEnabled and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(80, 80, 80)
+    local antiHitButton = mainFrame:FindFirstChild("StealerTab"):FindFirstChild("AntiHitButton")
+    if antiHitButton then
+        antiHitButton.BackgroundColor3 = antiHitEnabled and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(80, 80, 80)
     end
 end
 
--- Lógica para la función Jump Boost
-local function activateJumpBoost(jumpHeight)
-    local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-    if humanoid then
-        humanoid.JumpPower = jumpHeight
-        print("Jump Boost activado. Altura de salto ajustada a: " .. jumpHeight)
+-- Lógica para la función Anti-Hit
+local function activateAntiHit()
+    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local webSlinger = character:FindFirstChildOfClass("Tool")
+    
+    if webSlinger and webSlinger.Name == "WebSlinger" then
+        if antiHitEnabled and not debounce then
+            debounce = true
+            
+            -- Buscamos el RemoteEvent basándonos en el nombre de la herramienta.
+            local remoteEvent = ReplicatedStorage:FindFirstChild(webSlinger.Name .. "Event")
+                or ReplicatedStorage:FindFirstChild("Use" .. webSlinger.Name)
+                or webSlinger:FindFirstChild("RemoteEvent")
+            
+            if remoteEvent and remoteEvent:IsA("RemoteEvent") then
+                print("¡Bingo! Encontré el RemoteEvent: " .. remoteEvent.Name)
+                
+                local targetPosition = character.HumanoidRootPart.Position
+                remoteEvent:FireServer(targetPosition)
+                
+                print("Anti-Hit activado. Invulnerabilidad por 10 segundos.")
+            else
+                print("Error: No se encontró un RemoteEvent compatible.")
+                print("Podría ser que se llame de otra forma.")
+            end
+            
+            wait(10)
+            debounce = false
+        end
     else
-        print("Error: No se encontró el Humanoid del personaje.")
-    end
-end
-
-local function deactivateJumpBoost()
-    local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-    if humanoid then
-        humanoid.JumpPower = 50 -- Restaurar el valor por defecto de Roblox
-        print("Jump Boost desactivado. Altura de salto restaurada.")
+        print("Error: No se encontró el guante WebSlinger en tu personaje.")
     end
 end
 
@@ -132,6 +144,21 @@ local function initializeScript()
     stealerTab.Visible = false
     stealerTab.Parent = contentFrame
 
+    local antiHitButton = Instance.new("TextButton")
+    antiHitButton.Name = "AntiHitButton"
+    antiHitButton.Size = UDim2.new(0.8, 0, 0.1, 0)
+    antiHitButton.Position = UDim2.new(0.1, 0, 0.1, 0)
+    antiHitButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    antiHitButton.Text = "Anti-Hit"
+    antiHitButton.Parent = stealerTab
+    antiHitButton.MouseButton1Click:Connect(function()
+        antiHitEnabled = not antiHitEnabled
+        updateButtonColors(mainFrame)
+        if antiHitEnabled then
+            activateAntiHit()
+        end
+    end)
+
     local helperButton = Instance.new("TextButton")
     helperButton.Size = UDim2.new(1, 0, 0.1, 0)
     helperButton.Position = UDim2.new(0, 0, 0.1, 0)
@@ -165,71 +192,6 @@ local function initializeScript()
     playerTab.BackgroundColor3 = Color3.fromRGB(240, 240, 240)
     playerTab.Visible = false
     playerTab.Parent = contentFrame
-
-    local jumpBoostButton = Instance.new("TextButton")
-    jumpBoostButton.Name = "JumpBoostButton"
-    jumpBoostButton.Size = UDim2.new(0.8, 0, 0.1, 0)
-    jumpBoostButton.Position = UDim2.new(0.1, 0, 0.1, 0)
-    jumpBoostButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    jumpBoostButton.Text = "Activar Jump Boost"
-    jumpBoostButton.Parent = playerTab
-    jumpBoostButton.MouseButton1Click:Connect(function()
-        savedStates.jumpBoostEnabled = not savedStates.jumpBoostEnabled
-        updateButtonColors(mainFrame)
-        if savedStates.jumpBoostEnabled then
-            activateJumpBoost(savedStates.jumpHeight)
-        else
-            deactivateJumpBoost()
-        end
-    end)
-
-    local sliderFrame = Instance.new("Frame")
-    sliderFrame.Size = UDim2.new(0.8, 0, 0.1, 0)
-    sliderFrame.Position = UDim2.new(0.1, 0, 0.25, 0)
-    sliderFrame.BackgroundColor3 = Color3.fromRGB(180, 180, 180)
-    sliderFrame.Parent = playerTab
-
-    local sliderButton = Instance.new("Frame")
-    sliderButton.Size = UDim2.new(0.1, 0, 1, 0)
-    sliderButton.Position = UDim2.new(0, 0, 0, 0)
-    sliderButton.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
-    sliderButton.Parent = sliderFrame
-
-    local sliderLabel = Instance.new("TextLabel")
-    sliderLabel.Size = UDim2.new(1, 0, 0.5, 0)
-    sliderLabel.Position = UDim2.new(0, 0, 0.5, 0)
-    sliderLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0, 0)
-    sliderLabel.TextColor3 = Color3.fromRGB(0, 0, 0)
-    sliderLabel.Text = "Altura: " .. savedStates.jumpHeight
-    sliderLabel.Font = Enum.Font.SourceSansBold
-    sliderLabel.TextSize = 14
-    sliderLabel.Parent = sliderFrame
-
-    local dragging = false
-    sliderButton.MouseButton1Down:Connect(function()
-        dragging = true
-    end)
-    sliderButton.MouseButton1Up:Connect(function()
-        dragging = false
-    end)
-    RunService.Heartbeat:Connect(function()
-        if dragging then
-            local mouse = LocalPlayer:GetMouse()
-            local x = (mouse.X - sliderFrame.AbsolutePosition.X) / sliderFrame.AbsoluteSize.X
-            updateSlider(x)
-        end
-    end)
-    
-    local function updateSlider(x)
-        local newX = math.clamp(x, 0, 1)
-        sliderButton.Position = UDim2.new(newX, 0, 0, 0)
-        local jumpPower = math.floor(50 + newX * 250)
-        savedStates.jumpHeight = jumpPower
-        sliderLabel.Text = "Altura: " .. jumpPower
-        if savedStates.jumpBoostEnabled then
-            activateJumpBoost(jumpPower)
-        end
-    end
 
     local finderButton = Instance.new("TextButton")
     finderButton.Size = UDim2.new(1, 0, 0.1, 0)
@@ -289,12 +251,12 @@ end
 LocalPlayer.CharacterAdded:Connect(function()
     wait(1)
     initializeScript()
-    if savedStates.jumpBoostEnabled then
-        activateJumpBoost(savedStates.jumpHeight)
+    if antiHitEnabled then
+        activateAntiHit()
     end
 end)
 
 initializeScript()
-if savedStates.jumpBoostEnabled then
-    activateJumpBoost(savedStates.jumpHeight)
+if antiHitEnabled then
+    activateAntiHit()
 end
