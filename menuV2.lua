@@ -1,5 +1,5 @@
 -- Script con menú estilo Hub para Delta (Versión Final 2.8 - Teleport a Base)
--- AÑADIDA: Funcionalidad de Jump Boost ajustable.
+-- CORREGIDA: Funcionalidad de Jump Boost ajustable.
 
 -- Variables principales
 local Players = game:GetService("Players")
@@ -21,11 +21,11 @@ local baseLocation = nil
 -- Variables para la Invisibilidad Falsa
 local ghostClone = nil
 
--- NUEVAS VARIABLES PARA JUMP BOOST
+-- VARIABLES PARA JUMP BOOST
 local jumpBoostEnabled = false
 local jumpHeight = 50 -- Altura de salto inicial
 
--- NUEVA: Función para manejar el Jump Boost
+-- Función para manejar el Jump Boost
 local function activateJumpBoost(newJumpHeight)
     local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
     if humanoid then
