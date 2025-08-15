@@ -10,124 +10,277 @@ local savedStates = {
     antiHitEnabled = false
 }
 
--- Función para aplicar las opciones guardadas
-local function applySavedStates()
-    -- Aquí iría la lógica para activar las funciones si savedStates.teleportEnabled, etc. es true
-    -- Por ejemplo: if savedStates.teleportEnabled then activateTeleport() end
+local currentTab = "Stealer" -- La pestaña que se mostrará por defecto
+
+-- Función para actualizar los estados visuales de los botones
+local function updateButtonColors(mainFrame)
+    local teleportButton = mainFrame:FindFirstChild("StealerTab"):FindFirstChild("TeleportButton")
+    if teleportButton then
+        teleportButton.BackgroundColor3 = savedStates.teleportEnabled and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(80, 80, 80)
+    end
+    local autoFarmButton = mainFrame:FindFirstChild("StealerTab"):FindFirstChild("AutoFarmButton")
+    if autoFarmButton then
+        autoFarmButton.BackgroundColor3 = savedStates.autoFarmEnabled and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(80, 80, 80)
+    end
+    local antiHitButton = mainFrame:FindFirstChild("StealerTab"):FindFirstChild("AntiHitButton")
+    if antiHitButton then
+        antiHitButton.BackgroundColor3 = savedStates.antiHitEnabled and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(80, 80, 80)
+    end
 end
 
--- Función para inicializar el script
+-- Función para aplicar las opciones guardadas (lógica del script)
+local function applySavedStates()
+    -- Aquí iría la lógica para activar/desactivar las funcionalidades del script
+    -- Por ejemplo, si savedStates.antiHitEnabled es true, el script de Anti-Hit se activa
+    if savedStates.antiHitEnabled then
+        local debounce = false
+        RunService.Heartbeat:Connect(function()
+            if not debounce then
+                local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+                local webSlinger = character:FindFirstChild("WebSlinger") 
+                if webSlinger then
+                    debounce = true
+                    -- Simula el uso del Web-Slinger para auto-dispararte
+                    -- Esto es solo un ejemplo, la lógica real puede variar
+                    webSlinger.Activated:Fire()
+                    
+                    wait(10)
+                    debounce = false
+                end
+            end
+        end)
+    end
+end
+
+-- Función para inicializar el script (crear la GUI)
 local function initializeScript()
-    if PlayerGui:FindFirstChild("CustomMenu") then
-        PlayerGui.CustomMenu:Destroy()
+    if PlayerGui:FindFirstChild("ChilliHub") then
+        PlayerGui.ChilliHub:Destroy()
     end
 
-    local screenGui = Instance.new("ScreenGui")
-    screenGui.Name = "CustomMenu"
-    screenGui.Parent = PlayerGui
+    local mainGui = Instance.new("ScreenGui")
+    mainGui.Name = "ChilliHub"
+    mainGui.Parent = PlayerGui
 
     local mainFrame = Instance.new("Frame")
-    mainFrame.Size = UDim2.new(0.2, 0, 0.4, 0)
-    mainFrame.Position = UDim2.new(0.5, -mainFrame.Size.X.Scale * 0.5, 0.5, -mainFrame.Size.Y.Scale * 0.5)
-    mainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    mainFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    mainFrame.Size = UDim2.new(0.5, 0, 0.7, 0)
+    mainFrame.Position = UDim2.new(0.25, 0, 0.15, 0)
+    mainFrame.BackgroundColor3 = Color3.fromRGB(240, 240, 240)
+    mainFrame.BorderColor3 = Color3.fromRGB(150, 150, 150)
     mainFrame.BorderSizePixel = 2
-    mainFrame.Active = true
-    mainFrame.Draggable = true
-    mainFrame.Parent = screenGui
+    mainFrame.Parent = mainGui
 
-    local titleLabel = Instance.new("TextLabel")
-    titleLabel.Size = UDim2.new(1, 0, 0.1, 0)
-    titleLabel.Position = UDim2.new(0, 0, 0, 0)
-    titleLabel.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-    titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    titleLabel.Text = "Menú Secreto del Cerebro Podrido"
-    titleLabel.Font = Enum.Font.SourceSansBold
-    titleLabel.TextSize = 18
-    titleLabel.Parent = mainFrame
+    local topBar = Instance.new("Frame")
+    topBar.Size = UDim2.new(1, 0, 0.05, 0)
+    topBar.Position = UDim2.new(0, 0, 0, 0)
+    topBar.BackgroundColor3 = Color3.fromRGB(220, 220, 220)
+    topBar.Parent = mainFrame
 
-    local hideButton = Instance.new("TextButton")
-    hideButton.Size = UDim2.new(0.2, 0, 0.1, 0)
-    hideButton.Position = UDim2.new(0.8, 0, 0, 0)
-    hideButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-    hideButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    hideButton.Text = "Ocultar"
-    hideButton.Font = Enum.Font.SourceSansBold
-    hideButton.TextSize = 16
-    hideButton.Parent = mainFrame
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(0.8, 0, 1, 0)
+    title.Position = UDim2.new(0, 0, 0, 0)
+    title.BackgroundColor3 = Color3.fromRGB(220, 220, 220)
+    title.TextColor3 = Color3.fromRGB(0, 0, 0)
+    title.Text = "Steal a Brainrot - Chilli Hub - By KhanhSky"
+    title.Font = Enum.Font.SourceSans
+    title.TextSize = 18
+    title.TextXAlignment = Enum.TextXAlignment.Left
+    title.TextYAlignment = Enum.TextYAlignment.Center
+    title.Parent = topBar
 
-    local iconButton = Instance.new("TextButton")
-    iconButton.Size = UDim2.new(0.05, 0, 0.05, 0)
-    iconButton.Position = UDim2.new(1, -iconButton.Size.X.Scale, 0.5, -iconButton.Size.Y.Scale * 0.5)
-    iconButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    iconButton.BorderColor3 = Color3.fromRGB(255, 255, 255)
-    iconButton.BorderSizePixel = 2
-    iconButton.CornerRadius = UDim.new(0.5, 0)
-    iconButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    iconButton.Text = "🧠"
-    iconButton.Font = Enum.Font.SourceSansBold
-    iconButton.TextSize = 24
-    iconButton.Visible = false
-    iconButton.Parent = screenGui
+    local minButton = Instance.new("TextButton")
+    minButton.Size = UDim2.new(0.05, 0, 1, 0)
+    minButton.Position = UDim2.new(0.85, 0, 0, 0)
+    minButton.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+    minButton.Text = "-"
+    minButton.Parent = topBar
 
-    local function hideMenu()
-        mainFrame.Visible = false
-        iconButton.Visible = true
+    local closeButton = Instance.new("TextButton")
+    closeButton.Size = UDim2.new(0.05, 0, 1, 0)
+    closeButton.Position = UDim2.new(0.95, 0, 0, 0)
+    closeButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    closeButton.Text = "X"
+    closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    closeButton.Parent = topBar
+
+    closeButton.MouseButton1Click:Connect(function()
+        mainGui:Destroy()
+    end)
+    
+    -- Barra lateral para las pestañas
+    local sideBar = Instance.new("Frame")
+    sideBar.Size = UDim2.new(0.2, 0, 0.95, 0)
+    sideBar.Position = UDim2.new(0, 0, 0.05, 0)
+    sideBar.BackgroundColor3 = Color3.fromRGB(220, 220, 220)
+    sideBar.Parent = mainFrame
+    
+    local contentFrame = Instance.new("Frame")
+    contentFrame.Size = UDim2.new(0.8, 0, 0.95, 0)
+    contentFrame.Position = UDim2.new(0.2, 0, 0.05, 0)
+    contentFrame.BackgroundColor3 = Color3.fromRGB(240, 240, 240)
+    contentFrame.Parent = mainFrame
+
+    -- Función para cambiar de pestaña
+    local function changeTab(tabName)
+        currentTab = tabName
+        for _, tab in ipairs(contentFrame:GetChildren()) do
+            if tab:IsA("Frame") and tab.Name:match("Tab$") then
+                tab.Visible = (tab.Name == tabName .. "Tab")
+            end
+        end
     end
 
-    local function showMenu()
-        mainFrame.Visible = true
-        iconButton.Visible = false
-    end
+    -- Pestaña Stealer
+    local stealerButton = Instance.new("TextButton")
+    stealerButton.Size = UDim2.new(1, 0, 0.1, 0)
+    stealerButton.Position = UDim2.new(0, 0, 0, 0)
+    stealerButton.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+    stealerButton.Text = "Stealer*"
+    stealerButton.Parent = sideBar
+    stealerButton.MouseButton1Click:Connect(function()
+        changeTab("Stealer")
+    end)
+    
+    local stealerTab = Instance.new("Frame")
+    stealerTab.Name = "StealerTab"
+    stealerTab.Size = UDim2.new(1, 0, 1, 0)
+    stealerTab.BackgroundColor3 = Color3.fromRGB(240, 240, 240)
+    stealerTab.Visible = true
+    stealerTab.Parent = contentFrame
 
-    hideButton.MouseButton1Click:Connect(hideMenu)
-    iconButton.MouseButton1Click:Connect(showMenu)
-
-    -- Botón de Teleport
-    local optionButton1 = Instance.new("TextButton")
-    optionButton1.Size = UDim2.new(0.8, 0, 0.1, 0)
-    optionButton1.Position = UDim2.new(0.1, 0, 0.2, 0)
-    optionButton1.BackgroundColor3 = savedStates.teleportEnabled and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(80, 80, 80)
-    optionButton1.TextColor3 = Color3.fromRGB(255, 255, 255)
-    optionButton1.Text = "Activar Teleport"
-    optionButton1.Parent = mainFrame
-    optionButton1.MouseButton1Click:Connect(function()
+    -- Botones dentro de la pestaña Stealer
+    local teleportButton = Instance.new("TextButton")
+    teleportButton.Name = "TeleportButton"
+    teleportButton.Size = UDim2.new(0.8, 0, 0.1, 0)
+    teleportButton.Position = UDim2.new(0.1, 0, 0.1, 0)
+    teleportButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    teleportButton.Text = "Activar Teleport"
+    teleportButton.Parent = stealerTab
+    teleportButton.MouseButton1Click:Connect(function()
         savedStates.teleportEnabled = not savedStates.teleportEnabled
-        optionButton1.BackgroundColor3 = savedStates.teleportEnabled and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(80, 80, 80)
+        updateButtonColors(mainFrame)
         print("Teleport ha sido " .. (savedStates.teleportEnabled and "activado" or "desactivado"))
     end)
-
-    -- Botón de Auto-Farm
-    local optionButton2 = Instance.new("TextButton")
-    optionButton2.Size = UDim2.new(0.8, 0, 0.1, 0)
-    optionButton2.Position = UDim2.new(0.1, 0, 0.35, 0)
-    optionButton2.BackgroundColor3 = savedStates.autoFarmEnabled and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(80, 80, 80)
-    optionButton2.TextColor3 = Color3.fromRGB(255, 255, 255)
-    optionButton2.Text = "Auto-Farm"
-    optionButton2.Parent = mainFrame
-    optionButton2.MouseButton1Click:Connect(function()
+    
+    local autoFarmButton = Instance.new("TextButton")
+    autoFarmButton.Name = "AutoFarmButton"
+    autoFarmButton.Size = UDim2.new(0.8, 0, 0.1, 0)
+    autoFarmButton.Position = UDim2.new(0.1, 0, 0.25, 0)
+    autoFarmButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    autoFarmButton.Text = "Auto-Farm"
+    autoFarmButton.Parent = stealerTab
+    autoFarmButton.MouseButton1Click:Connect(function()
         savedStates.autoFarmEnabled = not savedStates.autoFarmEnabled
-        optionButton2.BackgroundColor3 = savedStates.autoFarmEnabled and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(80, 80, 80)
+        updateButtonColors(mainFrame)
         print("Auto-Farm ha sido " .. (savedStates.autoFarmEnabled and "activado" or "desactivado"))
     end)
 
-    -- Nuevo botón para el Anti-Hit
     local antiHitButton = Instance.new("TextButton")
+    antiHitButton.Name = "AntiHitButton"
     antiHitButton.Size = UDim2.new(0.8, 0, 0.1, 0)
-    antiHitButton.Position = UDim2.new(0.1, 0, 0.5, 0)
-    antiHitButton.BackgroundColor3 = savedStates.antiHitEnabled and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(80, 80, 80)
+    antiHitButton.Position = UDim2.new(0.1, 0, 0.4, 0)
     antiHitButton.TextColor3 = Color3.fromRGB(255, 255, 255)
     antiHitButton.Text = "Anti-Hit"
-    antiHitButton.Parent = mainFrame
+    antiHitButton.Parent = stealerTab
     antiHitButton.MouseButton1Click:Connect(function()
         savedStates.antiHitEnabled = not savedStates.antiHitEnabled
-        antiHitButton.BackgroundColor3 = savedStates.antiHitEnabled and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(80, 80, 80)
+        updateButtonColors(mainFrame)
         print("Anti-Hit ha sido " .. (savedStates.antiHitEnabled and "activado" or "desactivado"))
     end)
 
-    if not mainFrame.Visible and iconButton.Visible then
-        hideMenu()
-    end
+    -- Pestaña Helper
+    local helperButton = Instance.new("TextButton")
+    helperButton.Size = UDim2.new(1, 0, 0.1, 0)
+    helperButton.Position = UDim2.new(0, 0, 0.1, 0)
+    helperButton.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+    helperButton.Text = "Helper"
+    helperButton.Parent = sideBar
+    helperButton.MouseButton1Click:Connect(function()
+        changeTab("Helper")
+    end)
+    
+    local helperTab = Instance.new("Frame")
+    helperTab.Name = "HelperTab"
+    helperTab.Size = UDim2.new(1, 0, 1, 0)
+    helperTab.BackgroundColor3 = Color3.fromRGB(240, 240, 240)
+    helperTab.Visible = false
+    helperTab.Parent = contentFrame
+
+    -- Pestaña Player
+    local playerButton = Instance.new("TextButton")
+    playerButton.Size = UDim2.new(1, 0, 0.1, 0)
+    playerButton.Position = UDim2.new(0, 0, 0.2, 0)
+    playerButton.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+    playerButton.Text = "Player"
+    playerButton.Parent = sideBar
+    playerButton.MouseButton1Click:Connect(function()
+        changeTab("Player")
+    end)
+
+    local playerTab = Instance.new("Frame")
+    playerTab.Name = "PlayerTab"
+    playerTab.Size = UDim2.new(1, 0, 1, 0)
+    playerTab.BackgroundColor3 = Color3.fromRGB(240, 240, 240)
+    playerTab.Visible = false
+    playerTab.Parent = contentFrame
+
+    -- Pestaña Finder
+    local finderButton = Instance.new("TextButton")
+    finderButton.Size = UDim2.new(1, 0, 0.1, 0)
+    finderButton.Position = UDim2.new(0, 0, 0.3, 0)
+    finderButton.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+    finderButton.Text = "Finder"
+    finderButton.Parent = sideBar
+    finderButton.MouseButton1Click:Connect(function()
+        changeTab("Finder")
+    end)
+    
+    local finderTab = Instance.new("Frame")
+    finderTab.Name = "FinderTab"
+    finderTab.Size = UDim2.new(1, 0, 1, 0)
+    finderTab.BackgroundColor3 = Color3.fromRGB(240, 240, 240)
+    finderTab.Visible = false
+    finderTab.Parent = contentFrame
+
+    -- Pestaña Server
+    local serverButton = Instance.new("TextButton")
+    serverButton.Size = UDim2.new(1, 0, 0.1, 0)
+    serverButton.Position = UDim2.new(0, 0, 0.4, 0)
+    serverButton.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+    serverButton.Text = "Server"
+    serverButton.Parent = sideBar
+    serverButton.MouseButton1Click:Connect(function()
+        changeTab("Server")
+    end)
+    
+    local serverTab = Instance.new("Frame")
+    serverTab.Name = "ServerTab"
+    serverTab.Size = UDim2.new(1, 0, 1, 0)
+    serverTab.BackgroundColor3 = Color3.fromRGB(240, 240, 240)
+    serverTab.Visible = false
+    serverTab.Parent = contentFrame
+    
+    -- Pestaña Discord!
+    local discordButton = Instance.new("TextButton")
+    discordButton.Size = UDim2.new(1, 0, 0.1, 0)
+    discordButton.Position = UDim2.new(0, 0, 0.5, 0)
+    discordButton.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+    discordButton.Text = "Discord!"
+    discordButton.Parent = sideBar
+    discordButton.MouseButton1Click:Connect(function()
+        changeTab("Discord!")
+    end)
+    
+    local discordTab = Instance.new("Frame")
+    discordTab.Name = "Discord!Tab"
+    discordTab.Size = UDim2.new(1, 0, 1, 0)
+    discordTab.BackgroundColor3 = Color3.fromRGB(240, 240, 240)
+    discordTab.Visible = false
+    discordTab.Parent = contentFrame
+
+    -- Inicializa la visibilidad de las pestañas
+    changeTab(currentTab)
+    updateButtonColors(mainFrame)
 end
 
 LocalPlayer.CharacterAdded:Connect(function()
@@ -136,6 +289,5 @@ LocalPlayer.CharacterAdded:Connect(function()
     applySavedStates()
 end)
 
--- Primera inicialización del script
 initializeScript()
 applySavedStates()
